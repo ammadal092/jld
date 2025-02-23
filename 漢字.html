@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semangat Belajar - Tema Futuristik</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1A1D22; /* Dark background for hacker theme */
+            color: #00FF00; /* Neon green text color for cyberpunk effect */
+            overflow-x: hidden;
+            position: relative;
+            height: 100vh;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            color: #00FF00;
+            text-shadow: 0 0 10px #00FF00, 0 0 20px #00FF00;
+            margin-top: 50px;
+            font-weight: bold;
+        }
+
+        /* Animasi latar belakang dengan efek kode yang bergerak */
+        .background-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0D0D0D;
+            background-image: linear-gradient(0deg, transparent, transparent), 
+                              url('https://www.transparenttextures.com/patterns/asfalt-dark.png');
+            z-index: -1;
+            animation: backgroundMove 5s linear infinite;
+        }
+
+        /* Efek latar belakang bergerak secara horizontal */
+        @keyframes backgroundMove {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        /* Styling untuk tabel kalimat */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 10px;
+            height: 70vh;
+            overflow-y: auto;
+        }
+
+        .scroll-table {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-gap: 20px;
+        }
+
+        .scroll-table div {
+            padding: 15px;
+            border: 2px solid #00FF00;
+            border-radius: 8px;
+            background-color: #333;
+            text-align: center;
+            font-size: 1.2em;
+            font-family: 'Courier New', Courier, monospace;
+            line-height: 1.5em;
+            cursor: pointer;
+            transition: transform 0.3s ease-in-out, background-color 0.3s ease-in-out;
+            box-shadow: 0 0 10px #00FF00;
+        }
+
+        .scroll-table div:hover {
+            transform: translateY(-5px); /* Hover animation */
+            background-color: #444; /* Lighter color when hovered */
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: #00FF00;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background-color: #333;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>日本語</h1>
+
+    <!-- Background dengan animasi bergerak -->
+    <div class="background-animation"></div>
+
+    <!-- Kontainer kalimat yang bisa discroll -->
+    <div class="container">
+        <div class="scroll-table">
+            <!-- Baris 1 -->
+            <div>私は石油会社に勤めている</div>
+            <div>VSCODEを実行する</div>
+            <div>コンピュータを再起動する</div>
+            <div>私は東京に住んでいます</div>
+            <div>日本語を勉強しています</div>
+
+            <!-- Baris 2 -->
+            <div>私は石油会社に勤めている</div>
+            <div>VSCODEを実行する</div>
+            <div>コンピュータを再起動する</div>
+            <div>私は東京に住んでいます</div>
+            <div>日本語を勉強しています</div>
+
+            <!-- Baris 3 -->
+            <div>私は石油会社に勤めている</div>
+            <div>VSCODEを実行する</div>
+            <div>コンピュータを再起動する</div>
+            <div>私は東京に住んでいます</div>
+            <div>日本語を勉強しています</div>
+
+            <!-- Baris 4 -->
+            <div>私は石油会社に勤めている</div>
+            <div>VSCODEを実行する</div>
+            <div>コンピュータを再起動する</div>
+            <div>私は東京に住んでいます</div>
+            <div>日本語を勉強しています</div>
+
+            <!-- Baris 5 -->
+            <div>私は石油会社に勤めている</div>
+            <div>VSCODEを実行する</div>
+            <div>コンピュータを再起動する</div>
+            <div>私は東京に住んでいます</div>
+            <div>日本語を勉強しています</div>
+        </div>
+    </div>
+
+</body>
+</html>
