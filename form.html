@@ -42,6 +42,12 @@
     </div>
 
     <script>
+        function fileExists(url) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('HEAD', url, false); // sinkronus, hati-hati
+            xhr.send();
+            return xhr.status !== 404;
+        }
         // 入力された漢字に基づいて画像を検索する処理
         document.getElementById('kanjiForm').addEventListener('submit', function(event) {
             event.preventDefault(); // ページのリロードを防ぐ
@@ -55,15 +61,28 @@
             var folderPath = '漢字/';
             var foundImages = [];
             var missingImages = []; // 見つからなかった漢字を保存
-
+            
             // 入力された漢字の各文字をループ
             for (var i = 0; i < inputKanji.length; i++) {
                 var kanjiCharacter = inputKanji[i];
-                var imagePath = folderPath + kanjiCharacter + '.jpg';
+                var jpgPath= folderPath + kanjiCharacter + '.jpg';
+                var pngPath = folderPath + kanjiCharacter + '.png';
+                
+                // Memeriksa apakah file dengan ekstensi .jpg ada
+                var imagePath = jpgPath;
+                
+
+                // Jika file .jpg tidak ada, coba dengan ekstensi .png
+                if (!fileExists(jpgPath)) {
+                    imagePath = pngPath;
+                    
+                }
                 
                 // 画像が存在するか確認
+                
                 var img = new Image();
                 img.src = imagePath;
+                console.log(imagePath);
                 
                 img.onload = function() {
                     // 画像が見つかった場合、画像を表示
