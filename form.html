@@ -2,15 +2,129 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Pilih Folder Gambar</title>
+    <title>入力に基づく画像表示</title>
+    <style>
+        img {
+            max-width: 500px;
+            margin-top: 20px;
+        }
+        .furigana, .meaning {
+            display: none;
+            margin-top: 10px;
+            color: #333;
+        }
+        button {
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
-    <h2>Pilih Folder yang Berisi Gambar</h2>
 
-    <form action="shassin.php" method="GET">
-        <label for="kanji">Masukkan Kanji:</label>
-        <input type="text" name="kanji" id="kanji" placeholder="Contoh: 関係" required>
-        <button type="submit">Cari Folder</button>
+    <h1>画像を検索するために漢字を入力してください</h1>
+    <form id="kanjiForm">
+        <label for="kanji">漢字を入力してください: </label>
+        <input type="text" id="kanji" name="kanji" required>
+        <button type="submit">検索</button>
     </form>
+
+    <h2>検索結果:</h2>
+    <div id="imageResults"></div>
+
+    <!-- Furiganaと意味の表示/非表示 -->
+    <div id="furiganaResults">
+        <button id="showFurigana">ふりがなを表示</button>
+        <div class="furigana" id="furiganaText"></div>
+    </div>
+    
+    <div id="meaningResults">
+        <button id="showMeaning">意味を表示</button>
+        <div class="meaning" id="meaningText"></div>
+    </div>
+
+    <script>
+        // 入力された漢字に基づいて画像を検索する処理
+        document.getElementById('kanjiForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // ページのリロードを防ぐ
+
+            // 漢字の入力を取得
+            var inputKanji = document.getElementById('kanji').value.trim();
+            var imageContainer = document.getElementById('imageResults');
+            imageContainer.innerHTML = ''; // 以前の検索結果をクリア
+
+            // 画像が保存されているフォルダのパス
+            var folderPath = '漢字/';
+            var foundImages = [];
+            var missingImages = []; // 見つからなかった漢字を保存
+
+            // 入力された漢字の各文字をループ
+            for (var i = 0; i < inputKanji.length; i++) {
+                var kanjiCharacter = inputKanji[i];
+                var imagePath = folderPath + kanjiCharacter + '.jpg';
+                
+                // 画像が存在するか確認
+                var img = new Image();
+                img.src = imagePath;
+                
+                img.onload = function() {
+                    // 画像が見つかった場合、画像を表示
+                    foundImages.push(this.src); // 見つかった画像のURLを保存
+                    if (foundImages.length + missingImages.length === inputKanji.length) { // すべての画像が処理された場合
+                        displayImages(foundImages, missingImages);
+                    }
+                };
+
+                img.onerror = function() {
+                    // 画像が見つからなかった場合、見つからなかった漢字を保存
+                    missingImages.push(kanjiCharacter); // 画像が見つからなかった漢字を保存
+                    if (foundImages.length + missingImages.length === inputKanji.length) { // すべての画像が処理された場合
+                        displayImages(foundImages, missingImages);
+                    }
+                };
+            }
+        });
+
+        // 画像と見つからなかった漢字を表示する関数
+        function displayImages(foundImages, missingImages) {
+            var imageContainer = document.getElementById('imageResults');
+            imageContainer.innerHTML = ''; // 結果をクリア
+
+            // 見つかった画像を表示
+            foundImages.forEach(function(image) {
+                imageContainer.innerHTML += `<img src="${image}" alt="画像" />`;
+            });
+
+            // 見つからなかった漢字についてのエラーメッセージを表示
+            missingImages.forEach(function(kanji) {
+                imageContainer.innerHTML += `<p style="color:red;">漢字「${kanji}」の画像は見つかりませんでした。</p>`;
+            });
+        }
+
+        // ふりがな表示/非表示の切り替え
+        document.getElementById('showFurigana').addEventListener('click', function() {
+            var furiganaText = document.getElementById('furiganaText');
+            if (furiganaText.style.display === 'none' || furiganaText.style.display === '') {
+                furiganaText.style.display = 'block';
+                furiganaText.textContent = '例: これはふりがなです'; // ふりがな例
+                document.getElementById('showFurigana').textContent = 'ふりがなを非表示';
+            } else {
+                furiganaText.style.display = 'none';
+                document.getElementById('showFurigana').textContent = 'ふりがなを表示';
+            }
+        });
+
+        // 意味表示/非表示の切り替え
+        document.getElementById('showMeaning').addEventListener('click', function() {
+            var meaningText = document.getElementById('meaningText');
+            if (meaningText.style.display === 'none' || meaningText.style.display === '') {
+                meaningText.style.display = 'block';
+                meaningText.innerHTML = '意味例: 漢字は日本語の文字で、意味を持っています。もじ　いみれい　がぞう　けんさく　にゅうりょく　ひひょうじ　けっか'; // 意味の例
+                document.getElementById('showMeaning').textContent = '意味を非表示';
+            } else {
+                meaningText.style.display = 'none';
+                document.getElementById('showMeaning').textContent = '意味を表示';
+            }
+        });
+    </script>
+
 </body>
 </html>
