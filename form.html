@@ -30,7 +30,6 @@
     <h2>検索結果:</h2>
     <div id="imageResults"></div>
 
-    <!-- Furiganaと意味の表示/非表示 -->
     <div id="furiganaResults">
         <button id="showFurigana">ふりがなを表示</button>
         <div class="furigana" id="furiganaText"></div>
@@ -43,67 +42,97 @@
 
     <script>
         document.getElementById('kanjiForm').addEventListener('submit', function(event) {
-    event.preventDefault();
+            event.preventDefault();
 
-    var inputKanji = document.getElementById('kanji').value.trim();
-    var imageContainer = document.getElementById('imageResults');
-    imageContainer.innerHTML = '';
+            const inputText = document.getElementById('kanji').value.trim();
+            const imageContainer = document.getElementById('imageResults');
+            imageContainer.innerHTML = '';
 
-    var folderPath = '漢字/';
-    var foundImages = [];
-    var totalToCheck = 0;
-    var totalChecked = 0;
+            const folderPath = '漢字/';
+            const extensions = ['.png', '.jpg'];
+            const maxSuffix = 10; // jumlah file tambahan, misalnya 001–010
 
-    const maxSuffix = 10; // Ganti sesuai kebutuhan, misalnya 50 untuk sampai xxx050
-    const extensions = ['.png', '.jpg'];
+            const foundImages = [];
+            let totalToCheck = 0;
+            let totalChecked = 0;
 
-    // Fungsi untuk cek dan load gambar
-    function checkImage(path) {
-        totalToCheck++;
-        var img = new Image();
-        img.src = path;
+            // Untuk tiap karakter dalam input
+            for (let c = 0; c < inputText.length; c++) {
+                const kanjiChar = inputText[c];
 
-        img.onload = function () {
-            foundImages.push(path);
-            checkDone();
-        };
+                // Cek file: asli + file berakhiran angka
+                for (let ext of extensions) {
+                    // Cek nama asli
+                    checkImage(folderPath + kanjiChar + ext);
 
-        img.onerror = function () {
-            checkDone();
-        };
-    }
+                    // Cek file dengan angka: 001 - max
+                    for (let i = 1; i <= maxSuffix; i++) {
+                        let num = String(i).padStart(3, '0');
+                        checkImage(folderPath + kanjiChar + num + ext);
+                    }
+                }
+            }
 
-    function checkDone() {
-        totalChecked++;
-        if (totalChecked === totalToCheck) {
-            displayImages(foundImages);
-        }
-    }
+            // Cek dan load gambar
+            function checkImage(path) {
+                totalToCheck++;
+                let img = new Image();
+                img.src = path;
 
-    // Mulai pencarian: input asli + tambahan angka 001, 002, dst.
-    for (var ext of extensions) {
-        // Cek file utama: 横.png dan 横.jpg
-        checkImage(folderPath + inputKanji + ext);
+                img.onload = function () {
+                    foundImages.push(path);
+                    checkDone();
+                };
 
-        // Cek file dengan tambahan angka: 横001.png, 横002.jpg, dst.
-        for (let i = 1; i <= maxSuffix; i++) {
-            let num = String(i).padStart(3, '0');
-            checkImage(folderPath + inputKanji + num + ext);
-        }
-    }
+                img.onerror = function () {
+                    checkDone();
+                };
+            }
 
-    // Menampilkan semua gambar yang ditemukan
-    function displayImages(images) {
-        if (images.length === 0) {
-            imageContainer.innerHTML = `<p style="color:red;">漢字「${inputKanji}」の画像は見つかりませんでした。</p>`;
-        } else {
-            images.forEach(function(image) {
-                imageContainer.innerHTML += `<img src="${image}" alt="画像" />`;
-            });
-        }
-    }
-});
+            // Setelah semua gambar selesai dicek
+            function checkDone() {
+                totalChecked++;
+                if (totalChecked === totalToCheck) {
+                    displayImages(foundImages);
+                }
+            }
 
+            function displayImages(images) {
+                if (images.length === 0) {
+                    imageContainer.innerHTML = `<p style="color:red;">入力された漢字に該当する画像は見つかりませんでした。</p>`;
+                } else {
+                    images.forEach(function(image) {
+                        imageContainer.innerHTML += `<img src="${image}" alt="画像">`;
+                    });
+                }
+            }
+        });
+
+        // ふりがな表示/非表示
+        document.getElementById('showFurigana').addEventListener('click', function() {
+            const text = document.getElementById('furiganaText');
+            if (text.style.display === 'none' || text.style.display === '') {
+                text.style.display = 'block';
+                text.textContent = '例: これはふりがなです';
+                this.textContent = 'ふりがなを非表示';
+            } else {
+                text.style.display = 'none';
+                this.textContent = 'ふりがなを表示';
+            }
+        });
+
+        // 意味表示/非表示
+        document.getElementById('showMeaning').addEventListener('click', function() {
+            const text = document.getElementById('meaningText');
+            if (text.style.display === 'none' || text.style.display === '') {
+                text.style.display = 'block';
+                text.innerHTML = '意味例: 漢字は日本語の文字で、意味を持っています。';
+                this.textContent = '意味を非表示';
+            } else {
+                text.style.display = 'none';
+                this.textContent = '意味を表示';
+            }
+        });
     </script>
 
 </body>
