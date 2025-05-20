@@ -42,107 +42,68 @@
     </div>
 
     <script>
-        function fileExists(url) {
-            var xhr = new XMLHttpRequest();
-            xhr.open('HEAD', url, false); // sinkronus, hati-hati
-            xhr.send();
-            return xhr.status !== 404;
-        }
-        // 入力された漢字に基づいて画像を検索する処理
         document.getElementById('kanjiForm').addEventListener('submit', function(event) {
-            event.preventDefault(); // ページのリロードを防ぐ
+    event.preventDefault();
 
-            // 漢字の入力を取得
-            var inputKanji = document.getElementById('kanji').value.trim();
-            var imageContainer = document.getElementById('imageResults');
-            imageContainer.innerHTML = ''; // 以前の検索結果をクリア
+    var inputKanji = document.getElementById('kanji').value.trim();
+    var imageContainer = document.getElementById('imageResults');
+    imageContainer.innerHTML = '';
 
-            // 画像が保存されているフォルダのパス
-            var folderPath = '漢字/';
-            var foundImages = [];
-            var missingImages = []; // 見つからなかった漢字を保存
-            
-            // 入力された漢字の各文字をループ
-            for (var i = 0; i < inputKanji.length; i++) {
-                var kanjiCharacter = inputKanji[i];
-                var jpgPath= folderPath + kanjiCharacter + '.jpg';
-                var pngPath = folderPath + kanjiCharacter + '.png';
-                
-                // Memeriksa apakah file dengan ekstensi .jpg ada
-                var imagePath = jpgPath;
-                
+    var folderPath = '漢字/';
+    var foundImages = [];
+    var totalToCheck = 0;
+    var totalChecked = 0;
 
-                // Jika file .jpg tidak ada, coba dengan ekstensi .png
-                if (!fileExists(jpgPath)) {
-                    imagePath = pngPath;
-                    
-                }
-                
-                // 画像が存在するか確認
-                
-                var img = new Image();
-                img.src = imagePath;
-                console.log(imagePath);
-                
-                img.onload = function() {
-                    // 画像が見つかった場合、画像を表示
-                    foundImages.push(this.src); // 見つかった画像のURLを保存
-                    if (foundImages.length + missingImages.length === inputKanji.length) { // すべての画像が処理された場合
-                        displayImages(foundImages, missingImages);
-                    }
-                };
+    const maxSuffix = 10; // Ganti sesuai kebutuhan, misalnya 50 untuk sampai xxx050
+    const extensions = ['.png', '.jpg'];
 
-                img.onerror = function() {
-                    // 画像が見つからなかった場合、見つからなかった漢字を保存
-                    missingImages.push(kanjiCharacter); // 画像が見つからなかった漢字を保存
-                    if (foundImages.length + missingImages.length === inputKanji.length) { // すべての画像が処理された場合
-                        displayImages(foundImages, missingImages);
-                    }
-                };
-            }
-        });
+    // Fungsi untuk cek dan load gambar
+    function checkImage(path) {
+        totalToCheck++;
+        var img = new Image();
+        img.src = path;
 
-        // 画像と見つからなかった漢字を表示する関数
-        function displayImages(foundImages, missingImages) {
-            var imageContainer = document.getElementById('imageResults');
-            imageContainer.innerHTML = ''; // 結果をクリア
+        img.onload = function () {
+            foundImages.push(path);
+            checkDone();
+        };
 
-            // 見つかった画像を表示
-            foundImages.forEach(function(image) {
+        img.onerror = function () {
+            checkDone();
+        };
+    }
+
+    function checkDone() {
+        totalChecked++;
+        if (totalChecked === totalToCheck) {
+            displayImages(foundImages);
+        }
+    }
+
+    // Mulai pencarian: input asli + tambahan angka 001, 002, dst.
+    for (var ext of extensions) {
+        // Cek file utama: 横.png dan 横.jpg
+        checkImage(folderPath + inputKanji + ext);
+
+        // Cek file dengan tambahan angka: 横001.png, 横002.jpg, dst.
+        for (let i = 1; i <= maxSuffix; i++) {
+            let num = String(i).padStart(3, '0');
+            checkImage(folderPath + inputKanji + num + ext);
+        }
+    }
+
+    // Menampilkan semua gambar yang ditemukan
+    function displayImages(images) {
+        if (images.length === 0) {
+            imageContainer.innerHTML = `<p style="color:red;">漢字「${inputKanji}」の画像は見つかりませんでした。</p>`;
+        } else {
+            images.forEach(function(image) {
                 imageContainer.innerHTML += `<img src="${image}" alt="画像" />`;
             });
-
-            // 見つからなかった漢字についてのエラーメッセージを表示
-            missingImages.forEach(function(kanji) {
-                imageContainer.innerHTML += `<p style="color:red;">漢字「${kanji}」の画像は見つかりませんでした。</p>`;
-            });
         }
+    }
+});
 
-        // ふりがな表示/非表示の切り替え
-        document.getElementById('showFurigana').addEventListener('click', function() {
-            var furiganaText = document.getElementById('furiganaText');
-            if (furiganaText.style.display === 'none' || furiganaText.style.display === '') {
-                furiganaText.style.display = 'block';
-                furiganaText.textContent = '例: これはふりがなです'; // ふりがな例
-                document.getElementById('showFurigana').textContent = 'ふりがなを非表示';
-            } else {
-                furiganaText.style.display = 'none';
-                document.getElementById('showFurigana').textContent = 'ふりがなを表示';
-            }
-        });
-
-        // 意味表示/非表示の切り替え
-        document.getElementById('showMeaning').addEventListener('click', function() {
-            var meaningText = document.getElementById('meaningText');
-            if (meaningText.style.display === 'none' || meaningText.style.display === '') {
-                meaningText.style.display = 'block';
-                meaningText.innerHTML = '意味例: 漢字は日本語の文字で、意味を持っています。もじ　いみれい　がぞう　けんさく　にゅうりょく　ひひょうじ　けっか'; // 意味の例
-                document.getElementById('showMeaning').textContent = '意味を非表示';
-            } else {
-                meaningText.style.display = 'none';
-                document.getElementById('showMeaning').textContent = '意味を表示';
-            }
-        });
     </script>
 
 </body>
