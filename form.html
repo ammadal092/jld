@@ -16,6 +16,10 @@
         button {
             margin-top: 10px;
         }
+        .not-found {
+            color: red;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -29,6 +33,7 @@
 
     <h2>検索結果:</h2>
     <div id="imageResults"></div>
+    <div id="notFoundResults" class="not-found"></div>
 
     <div id="furiganaResults">
         <button id="showFurigana">ふりがなを表示</button>
@@ -46,40 +51,42 @@
 
             const inputText = document.getElementById('kanji').value.trim();
             const imageContainer = document.getElementById('imageResults');
+            const notFoundContainer = document.getElementById('notFoundResults');
             imageContainer.innerHTML = '';
+            notFoundContainer.innerHTML = '';
 
             const folderPath = '漢字/';
             const extensions = ['.png', '.jpg'];
-            const maxSuffix = 10; // jumlah file tambahan, misalnya 001–010
+            const maxSuffix = 10;
 
             const foundImages = [];
+            const kanjiFound = {};
             let totalToCheck = 0;
             let totalChecked = 0;
 
-            // Untuk tiap karakter dalam input
+            // Untuk tiap karakter kanji
             for (let c = 0; c < inputText.length; c++) {
                 const kanjiChar = inputText[c];
+                kanjiFound[kanjiChar] = false;
 
-                // Cek file: asli + file berakhiran angka
                 for (let ext of extensions) {
-                    // Cek nama asli
-                    checkImage(folderPath + kanjiChar + ext);
-
-                    // Cek file dengan angka: 001 - max
+                    checkImage(kanjiChar, folderPath + kanjiChar + ext);
                     for (let i = 1; i <= maxSuffix; i++) {
                         let num = String(i).padStart(3, '0');
-                        checkImage(folderPath + kanjiChar + num + ext);
+                        checkImage(kanjiChar, folderPath + kanjiChar + num + ext);
                     }
                 }
             }
 
-            // Cek dan load gambar
-            function checkImage(path) {
+            function checkImage(kanjiChar, path) {
                 totalToCheck++;
                 let img = new Image();
                 img.src = path;
 
                 img.onload = function () {
+                    if (!kanjiFound[kanjiChar]) {
+                        kanjiFound[kanjiChar] = true;
+                    }
                     foundImages.push(path);
                     checkDone();
                 };
@@ -89,26 +96,36 @@
                 };
             }
 
-            // Setelah semua gambar selesai dicek
             function checkDone() {
                 totalChecked++;
                 if (totalChecked === totalToCheck) {
-                    displayImages(foundImages);
+                    displayResults();
                 }
             }
 
-            function displayImages(images) {
-                if (images.length === 0) {
+            function displayResults() {
+                if (foundImages.length === 0) {
                     imageContainer.innerHTML = `<p style="color:red;">入力された漢字に該当する画像は見つかりませんでした。</p>`;
                 } else {
-                    images.forEach(function(image) {
+                    foundImages.forEach(function(image) {
                         imageContainer.innerHTML += `<img src="${image}" alt="画像">`;
                     });
+                }
+
+                // Tampilkan karakter yang tidak ditemukan
+                let notFoundList = [];
+                for (let char in kanjiFound) {
+                    if (!kanjiFound[char]) {
+                        notFoundList.push(char);
+                    }
+                }
+
+                if (notFoundList.length > 0) {
+                    notFoundContainer.innerHTML = `画像が見つからなかった漢字: <strong>${notFoundList.join(', ')}</strong>`;
                 }
             }
         });
 
-        // ふりがな表示/非表示
         document.getElementById('showFurigana').addEventListener('click', function() {
             const text = document.getElementById('furiganaText');
             if (text.style.display === 'none' || text.style.display === '') {
@@ -121,7 +138,6 @@
             }
         });
 
-        // 意味表示/非表示
         document.getElementById('showMeaning').addEventListener('click', function() {
             const text = document.getElementById('meaningText');
             if (text.style.display === 'none' || text.style.display === '') {
