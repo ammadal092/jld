@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <meta charset="UTF-8">
     <title>入力に基づく画像表示</title>
     <style>
@@ -44,7 +47,6 @@
         <button id="showMeaning">意味を表示</button>
         <div class="meaning" id="meaningText"></div>
     </div>
-
     <script>
     document.getElementById('kanjiForm').addEventListener('submit', function(event) {
         event.preventDefault();
@@ -57,7 +59,7 @@
 
         const folderPath = '漢字/';
         const extensions = ['.png', '.jpg'];
-        const maxSuffix = 10;
+        const maxSuffix = 1;
 
         const foundImages = [];
         const kanjiFound = {};
@@ -81,15 +83,17 @@
 
         function checkImage(kanjiChar, path) {
             totalToCheck++;
+            const timestamp = Date.now();
+            const pathWithTimestamp = `${path}?t=${timestamp}`;
             let img = new Image();
-            img.src = path;
+            img.src = pathWithTimestamp;
 
             img.onload = function () {
                 if (!kanjiFound[kanjiChar]) {
                     kanjiFound[kanjiChar] = true;
                 }
-                if (!foundImages.includes(path)) {
-                    foundImages.push(path);
+                if (!foundImages.includes(pathWithTimestamp)) {
+                    foundImages.push(pathWithTimestamp);
                 }
                 checkDone();
             };
@@ -128,6 +132,91 @@
         }
     });
 </script>
+
+
+    <!-- <script>
+        document.getElementById('kanjiForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const inputText = document.getElementById('kanji').value.trim();
+            const imageContainer = document.getElementById('imageResults');
+            const notFoundContainer = document.getElementById('notFoundResults');
+            imageContainer.innerHTML = '';
+            notFoundContainer.innerHTML = '';
+
+            const folderPath = '漢字/';
+            const extensions = ['.png', '.jpg'];
+            const maxSuffix = 1;
+
+            const foundImages = [];
+            const kanjiFound = {};
+            let totalToCheck = 0;
+            let totalChecked = 0;
+
+            // 🔹 Ambil hanya karakter kanji unik
+            const uniqueKanji = [...new Set(inputText.split(''))];
+
+            for (let kanjiChar of uniqueKanji) {
+                kanjiFound[kanjiChar] = false;
+
+                for (let ext of extensions) {
+                    checkImage(kanjiChar, folderPath + kanjiChar + ext);
+                    for (let i = 1; i <= maxSuffix; i++) {
+                        let num = String(i).padStart(3, '0');
+                        checkImage(kanjiChar, folderPath + kanjiChar + num + ext);
+                    }
+                }
+            }
+
+            function checkImage(kanjiChar, path) {
+                totalToCheck++;
+                let img = new Image();
+                img.src = path;
+
+                img.onload = function () {
+                    if (!kanjiFound[kanjiChar]) {
+                        kanjiFound[kanjiChar] = true;
+                    }
+                    if (!foundImages.includes(path)) {
+                        foundImages.push(path);
+                    }
+                    checkDone();
+                };
+
+                img.onerror = function () {
+                    checkDone();
+                };
+            }
+
+            function checkDone() {
+                totalChecked++;
+                if (totalChecked === totalToCheck) {
+                    displayResults();
+                }
+            }
+
+            function displayResults() {
+                if (foundImages.length === 0) {
+                    imageContainer.innerHTML = `<p style="color:red;">入力された漢字に該当する画像は見つかりませんでした。</p>`;
+                } else {
+                    foundImages.forEach(function(image) {
+                        imageContainer.innerHTML += `<img src="${image}" alt="画像">`;
+                    });
+                }
+
+                let notFoundList = [];
+                for (let char in kanjiFound) {
+                    if (!kanjiFound[char]) {
+                        notFoundList.push(char);
+                    }
+                }
+
+                if (notFoundList.length > 0) {
+                    notFoundContainer.innerHTML = `画像が見つからなかった漢字: <strong>${notFoundList.join(', ')}</strong>`;
+                }
+            }
+        });
+    </script> -->
 
 
 </body>

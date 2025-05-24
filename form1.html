@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta charset="UTF-8">
+    <title>入力に基づく画像表示</title>
+    <style>
+        img {
+            max-width: 500px;
+            margin-top: 20px;
+        }
+        .furigana, .meaning {
+            display: none;
+            margin-top: 10px;
+            color: #333;
+        }
+        button {
+            margin-top: 10px;
+        }
+        .not-found {
+            color: red;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>画像を検索するために漢字を入力してください</h1>
+    <form id="kanjiForm">
+        <label for="kanji">漢字を入力してください: </label>
+        <input type="text" id="kanji" name="kanji" required>
+        <button type="submit">検索</button>
+    </form>
+
+    <h2>検索結果:</h2>
+    <div id="imageResults"></div>
+    <div id="notFoundResults" class="not-found"></div>
+
+    <div id="furiganaResults">
+        <button id="showFurigana">ふりがなを表示</button>
+        <div class="furigana" id="furiganaText"></div>
+    </div>
+    
+    <div id="meaningResults">
+        <button id="showMeaning">意味を表示</button>
+        <div class="meaning" id="meaningText"></div>
+    </div>
+
+    <script>
+document.getElementById('kanjiForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
+
+    const inputText = document.getElementById('kanji').value.trim();
+    const imageContainer = document.getElementById('imageResults');
+    const notFoundContainer = document.getElementById('notFoundResults');
+    imageContainer.innerHTML = '';
+    notFoundContainer.innerHTML = '';
+
+    const folderPath = '漢字/';
+    const extensions = ['.png', '.jpg'];
+    const maxSuffix = 1;
+
+    const foundImages = [];
+    const notFoundKanji = [];
+
+    const uniqueKanji = [...new Set(inputText.split(''))];
+
+    for (const kanji of uniqueKanji) {
+        const images = await findAllValidImages(kanji);
+        if (images.length > 0) {
+            foundImages.push(...images);
+        } else {
+            notFoundKanji.push(kanji);
+        }
+    }
+
+    // Tampilkan hasil
+    if (foundImages.length === 0) {
+        imageContainer.innerHTML = `<p style="color:red;">入力された漢字に該当する画像は見つかりませんでした。</p>`;
+    } else {
+        foundImages.forEach(image => {
+            imageContainer.innerHTML += `<img src="${image}" alt="画像">`;
+        });
+    }
+
+    if (notFoundKanji.length > 0) {
+        notFoundContainer.innerHTML = `画像が見つからなかった漢字: <strong>${notFoundKanji.join(', ')}</strong>`;
+    }
+
+    // Cari semua gambar valid untuk satu kanji
+    async function findAllValidImages(kanji) {
+        const candidates = [];
+
+        for (const ext of extensions) {
+            candidates.push(`${folderPath}${kanji}${ext}`);
+            for (let i = 1; i <= maxSuffix; i++) {
+                const num = String(i).padStart(3, '0');
+                candidates.push(`${folderPath}${kanji}${num}${ext}`);
+            }
+        }
+
+        const results = [];
+        for (const path of candidates) {
+            const cacheBusted = `${path}?t=${Date.now()}`;
+            const isValid = await imageExists(cacheBusted);
+            if (isValid) {
+                results.push(cacheBusted);
+            }
+        }
+
+        return results;
+    }
+
+    // Cek apakah gambar ada
+    function imageExists(src) {
+        return new Promise(resolve => {
+            const img = new Image();
+            img.onload = () => resolve(true);
+            img.onerror = () => resolve(false);
+            img.src = src;
+        });
+    }
+});
+</script>
+
+
+
+
+</body>
+</html>
