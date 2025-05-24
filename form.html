@@ -46,110 +46,89 @@
     </div>
 
     <script>
-        document.getElementById('kanjiForm').addEventListener('submit', function(event) {
-            event.preventDefault();
+    document.getElementById('kanjiForm').addEventListener('submit', function(event) {
+        event.preventDefault();
 
-            const inputText = document.getElementById('kanji').value.trim();
-            const imageContainer = document.getElementById('imageResults');
-            const notFoundContainer = document.getElementById('notFoundResults');
-            imageContainer.innerHTML = '';
-            notFoundContainer.innerHTML = '';
+        const inputText = document.getElementById('kanji').value.trim();
+        const imageContainer = document.getElementById('imageResults');
+        const notFoundContainer = document.getElementById('notFoundResults');
+        imageContainer.innerHTML = '';
+        notFoundContainer.innerHTML = '';
 
-            const folderPath = '漢字/';
-            const extensions = ['.png', '.jpg'];
-            const maxSuffix = 10;
+        const folderPath = '漢字/';
+        const extensions = ['.png', '.jpg'];
+        const maxSuffix = 10;
 
-            const foundImages = [];
-            const kanjiFound = {};
-            let totalToCheck = 0;
-            let totalChecked = 0;
+        const foundImages = [];
+        const kanjiFound = {};
+        let totalToCheck = 0;
+        let totalChecked = 0;
 
-            // Untuk tiap karakter kanji
-            for (let c = 0; c < inputText.length; c++) {
-                const kanjiChar = inputText[c];
-                kanjiFound[kanjiChar] = false;
+        // 🔹 Ambil hanya karakter kanji unik
+        const uniqueKanji = [...new Set(inputText.split(''))];
 
-                for (let ext of extensions) {
-                    checkImage(kanjiChar, folderPath + kanjiChar + ext);
-                    for (let i = 1; i <= maxSuffix; i++) {
-                        let num = String(i).padStart(3, '0');
-                        checkImage(kanjiChar, folderPath + kanjiChar + num + ext);
-                    }
+        for (let kanjiChar of uniqueKanji) {
+            kanjiFound[kanjiChar] = false;
+
+            for (let ext of extensions) {
+                checkImage(kanjiChar, folderPath + kanjiChar + ext);
+                for (let i = 1; i <= maxSuffix; i++) {
+                    let num = String(i).padStart(3, '0');
+                    checkImage(kanjiChar, folderPath + kanjiChar + num + ext);
                 }
             }
+        }
 
-            function checkImage(kanjiChar, path) {
-                totalToCheck++;
-                let img = new Image();
-                img.src = path;
+        function checkImage(kanjiChar, path) {
+            totalToCheck++;
+            let img = new Image();
+            img.src = path;
 
-                img.onload = function () {
-                    if (!kanjiFound[kanjiChar]) {
-                        kanjiFound[kanjiChar] = true;
-                    }
+            img.onload = function () {
+                if (!kanjiFound[kanjiChar]) {
+                    kanjiFound[kanjiChar] = true;
+                }
+                if (!foundImages.includes(path)) {
                     foundImages.push(path);
-                    checkDone();
-                };
+                }
+                checkDone();
+            };
 
-                img.onerror = function () {
-                    checkDone();
-                };
+            img.onerror = function () {
+                checkDone();
+            };
+        }
+
+        function checkDone() {
+            totalChecked++;
+            if (totalChecked === totalToCheck) {
+                displayResults();
             }
+        }
 
-            function checkDone() {
-                totalChecked++;
-                if (totalChecked === totalToCheck) {
-                    displayResults();
-                }
-            }
-
-            function displayResults() {
-                if (foundImages.length === 0) {
-                    imageContainer.innerHTML = `<p style="color:red;">入力された漢字に該当する画像は見つかりませんでした。</p>`;
-                } else {
-                    foundImages.forEach(function(image) {
-                        imageContainer.innerHTML += `<img src="${image}" alt="画像">`;
-                    });
-                }
-
-                // Tampilkan karakter yang tidak ditemukan
-                let notFoundList = [];
-                for (let char in kanjiFound) {
-                    if (!kanjiFound[char]) {
-                        notFoundList.push(char);
-                    }
-                }
-
-                if (notFoundList.length > 0) {
-                    notFoundContainer.innerHTML = `画像が見つからなかった漢字: <strong>${notFoundList.join(', ')}</strong>`;
-                }
-            }
-        });
-
-        document.getElementById('showFurigana').addEventListener('click', function() {
-            const text = document.getElementById('furiganaText');
-            if (text.style.display === 'none' || text.style.display === '') {
-                text.style.display = 'block';
-                text.textContent = '例: これはふりがなです';
-                this.textContent = 'ふりがなを非表示';
+        function displayResults() {
+            if (foundImages.length === 0) {
+                imageContainer.innerHTML = `<p style="color:red;">入力された漢字に該当する画像は見つかりませんでした。</p>`;
             } else {
-                text.style.display = 'none';
-                this.textContent = 'ふりがなを表示';
+                foundImages.forEach(function(image) {
+                    imageContainer.innerHTML += `<img src="${image}" alt="画像">`;
+                });
             }
-        });
 
-        document.getElementById('showMeaning').addEventListener('click', function() {
-            const text = document.getElementById('meaningText');
-            if (text.style.display === 'none' || text.style.display === '') {
-                text.style.display = 'block';
-                text.innerHTML = '意味例: 漢字は日本語の文字で、意味を持っています。';
-                this.textContent = '意味を非表示';
-            } else {
-                text.style.display = 'none';
-                this.textContent = '意味を表示';
+            let notFoundList = [];
+            for (let char in kanjiFound) {
+                if (!kanjiFound[char]) {
+                    notFoundList.push(char);
+                }
             }
-        });
-    </script>
+
+            if (notFoundList.length > 0) {
+                notFoundContainer.innerHTML = `画像が見つからなかった漢字: <strong>${notFoundList.join(', ')}</strong>`;
+            }
+        }
+    });
+</script>
+
 
 </body>
 </html>
