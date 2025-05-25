@@ -79,3 +79,7 @@ https://www.kanshudo.com/tour?logout=y
 一生懸命
 働く
 治る
+休暇
+出勤
+退勤
+欠勤
