@@ -124,3 +124,5 @@ https://www.kanshudo.com/tour?logout=y
 現実
 厳しい
 敵
+隠す
+稼働率
