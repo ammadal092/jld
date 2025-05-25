@@ -84,3 +84,5 @@ https://www.kanshudo.com/tour?logout=y
 退勤
 欠勤
 社長
+命令
+転勤
