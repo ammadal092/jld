@@ -303,3 +303,6 @@ https://www.kanshudo.com/tour?logout=y
 輸入
 輸出
 下宿
+遠慮
+予習
+注意
