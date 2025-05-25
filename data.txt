@@ -1,6 +1,6 @@
 https://www.kanshudo.com/users/sign_up
 https://www.kanshudo.com/tour?logout=y
-https://www.kanshudo.com/users/sign_in
+
 施す
 太い
 細い
@@ -76,3 +76,4 @@ https://www.kanshudo.com/users/sign_in
 少ない
 理由
 家族
+一生懸命
