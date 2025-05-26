@@ -386,3 +386,6 @@ https://www.kanshudo.com/tour?logout=y
 上がる
 体調
 手紙
+区分
+休憩
+状況
